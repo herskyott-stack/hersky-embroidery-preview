@@ -131,6 +131,9 @@
         <div class="picker-scroll design-scroll"><div class="picker design" id="cutoutGrid"></div></div>
         <div class="actions"><button class="btn ghost" id="cutoutMore" style="display:none">Show more cutouts</button></div>
         <p class="meta">Album 4 is your store designs with the background stripped out — only the artwork itself stitches. No black square, no panel. Full-scene designs (where the background IS the picture) are not in here; they stay in the panel browser above.</p>
+        <h3>1e · Front Marks — embroidered medallions that pair with a back</h3>
+        <div class="picker" id="frontmarkPicker"></div>
+        <p class="meta">No text, ever — each medallion is the signature detail of its back design, flattened to a few thread colours with a stitched ring border. Picking one jumps the preview to the <strong>right shoulder</strong>.</p>
         <h3>2 · Your item</h3>
         <div class="row" id="garmentRow"></div>
         <div class="row" id="viewRow" style="margin-top:8px"></div>
@@ -209,12 +212,20 @@ const LOGOS = [
   {id:"lockup-bassquake", name:"Lockup · Bassquake", note:"Tall detailed piece. Best as a big back placement."}
 ];
 const VARIATIONS = [["var-001", "var-002", "var-003", "var-004", "var-005", "var-006", "var-007", "var-008", "var-009", "var-010", "var-011", "var-012", "var-013", "var-014", "var-015", "var-016", "var-017", "var-018", "var-019", "var-020", "var-021", "var-022", "var-023", "var-024", "var-025", "var-026", "var-027", "var-028", "var-029", "var-030", "var-031", "var-032", "var-033", "var-034", "var-035", "var-036", "var-037", "var-038", "var-039", "var-040", "var-041", "var-042", "var-043", "var-044", "var-045", "var-046", "var-047", "var-048", "var-049", "var-050", "var-051", "var-052", "var-053", "var-054", "var-055", "var-056", "var-057", "var-058", "var-059", "var-060", "var-061", "var-062", "var-063", "var-064", "var-065", "var-066", "var-067", "var-068", "var-069", "var-070", "var-071", "var-072", "var-073", "var-074", "var-075", "var-076", "var-077", "var-078", "var-079", "var-080", "var-081", "var-082", "var-083", "var-084", "var-085", "var-086", "var-087", "var-088", "var-089", "var-090", "var-091", "var-092", "var-093", "var-094", "var-095", "var-096", "var-097", "var-098", "var-099", "var-100", "var-101", "var-102", "var-103", "var-104", "var-105", "var-106", "var-107", "var-108", "var-109", "var-110", "var-111", "var-112", "var-113", "var-114", "var-115", "var-116", "var-117", "var-118", "var-119", "var-120", "var-121", "var-122", "var-123", "var-124", "var-125", "var-126", "var-127", "var-128", "var-129", "var-130", "var-131", "var-132", "var-133", "var-134", "var-135"]];
+const FRONTMARKS = [
+  {id:"fm-neon-eye", name:"Neon Eye Medallion", pair:"Neon Glow"},
+  {id:"fm-glitch-eye", name:"Glitch Eye Medallion", pair:"Rainbow Glitch"},
+  {id:"fm-sun-eye", name:"Sun Diamond-Eye Medallion", pair:"Sun Bleached"},
+  {id:"fm-creature-eye", name:"Creature Eye Medallion", pair:"Creature #01690"},
+  {id:"fm-opal-face", name:"Opal Face Medallion", pair:"Fire Opal"}
+];
+function isFrontmark(id){ return typeof id === "string" && id.indexOf("fm-") === 0; }
 const GARMENTS = {
-  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
-  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.33,w:.26,maxH:.50,topY:.17}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
-  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.33,w:.26,maxH:.50,topY:.17}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
   "dad-hat":    {label:"Dad Hat", maxH:0.30, span:0.46, spanIn:8, views:{front:{placements:{"Front panel":{x:.50,y:.46,w:.20,maxH:.30,topY:.26}}}, back:{placements:{"Back arch":{x:.50,y:.45,w:.16,maxH:.24,topY:.30}}}}},
-  "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.45,w:.24,maxH:.32,topY:.24}}}, back:{placements:{"Back":{x:.50,y:.45,w:.24,maxH:.32,topY:.24}}}}},
+  "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.42,w:.24,maxH:.26,topY:.25}}}, back:{placements:{"Back":{x:.50,y:.42,w:.24,maxH:.26,topY:.25}}}}},
   "tote":       {label:"Tote Bag", maxH:0.55, span:0.50, spanIn:15, views:{front:{placements:{"Centre":{x:.50,y:.60,w:.34,maxH:.50,topY:.35}}}, back:{placements:{"Centre":{x:.50,y:.60,w:.34,maxH:.50,topY:.35}}}}}
 };
 const THREADS = [
@@ -250,9 +261,10 @@ function enforceTextRule(){
   note.style.display = "none";
   return false;
 }
-function logoURL(id){ return isVar(id) ? "assets/variations/" + id + ".webp" : "assets/logos-web/" + id + ".webp"; }
+function logoURL(id){ if(isFrontmark(id)) return "assets/frontmarks/" + id + ".webp"; return isVar(id) ? "assets/variations/" + id + ".webp" : "assets/logos-web/" + id + ".webp"; }
 function logoName(id){
   if(state.cutout) return state.cutout[1]+" · Album 4 cutout";
+  if(isFrontmark(id)){ const f = FRONTMARKS.find(x=>x.id===id); return f ? f.name + " · pairs with " + f.pair + " back" : id; }
   if(isVar(id)) return "Album Logo #" + parseInt(id.slice(4),10);
   const l = LOGOS.find(x=>x.id===id); return l ? l.name : id;
 }
@@ -278,6 +290,15 @@ function buildPickers(){
     b.onclick=()=>{state.logo=id; state.design=null; state.cutout=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     vp.appendChild(b);
   });
+  const fp=$("#frontmarkPicker"); if(fp){ fp.innerHTML="";
+  FRONTMARKS.forEach(f=>{
+    const b=document.createElement("button");
+    if(f.id===state.logo) b.className="sel";
+    b.title=f.name+" — pairs with "+f.pair;
+    b.innerHTML='<img class="checker" src="'+logoURL(f.id)+'" alt="'+f.name+'">';
+    b.onclick=()=>{ state.logo=f.id; state.design=null; state.cutout=null; if(state.view==="front" && placements()["Right shoulder"]) state.placement="Right shoulder"; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    fp.appendChild(b);
+  }); }
   const gr=$("#garmentRow"); gr.innerHTML="";
   Object.keys(GARMENTS).forEach(g=>{
     const b=document.createElement("button"); b.className="chip"+(g===state.garment?" sel":""); b.textContent=GARMENTS[g].label;
