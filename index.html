@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HERSKY Embroidery Preview — Your Logos on Your Own Items</title>
+<meta name="description" content="Preview every HERSKY logo embroidered on your own tees, hoodies, hats and more. Pick a logo, garment, placement and thread colour — then build a stitch list for Circle & Thread, the bring-your-own embroidery shop.">
+<style>
+  :root{--bg:#14100c;--panel:#1f1913;--panel2:#282017;--ink:#f3ead8;--muted:#b8a888;--thread:#bc4a12;--gold:#c9971c;--line:#3a2f21}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
+  a{color:#e8a06c}
+  header{border-bottom:1px solid var(--line);background:#100d09;position:sticky;top:0;z-index:5}
+  .nav{max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .brand{font-weight:800;letter-spacing:.14em;color:var(--ink);text-decoration:none;font-size:1.15rem}
+  .brand span{color:var(--thread)}
+  .nav nav{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}
+  .nav nav a{color:var(--muted);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+  .nav nav a:hover{color:var(--ink)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  .hero{padding:42px 0 10px}
+  .kicker{letter-spacing:.26em;font-size:.75rem;color:var(--gold);font-weight:700;text-transform:uppercase}
+  h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:12px 0}
+  h1 em{color:var(--thread);font-style:normal}
+  .lede{color:var(--muted);max-width:46rem;font-size:1.08rem}
+  .notice{margin-top:18px;background:var(--panel);border:1px dashed var(--thread);border-radius:12px;padding:14px 18px;color:var(--ink);max-width:52rem}
+  section{padding:36px 0}
+  h2{font-size:1.7rem;margin-bottom:8px}
+  .sub{color:var(--muted);margin-bottom:20px;max-width:44rem}
+  /* tool layout */
+  .tool{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}
+  @media(max-width:900px){.tool{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card h3{font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:16px 0 10px}
+  .card h3:first-child{margin-top:0}
+  .picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .picker button{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;min-height:64px}
+  .picker button.sel{border-color:var(--thread)}
+  .picker button img{width:100%;height:52px;object-fit:contain;display:block}
+  .checker{background:repeating-conic-gradient(#2e2618 0% 25%, #241c11 0% 50%) 50% / 14px 14px;border-radius:6px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:600;min-height:44px}
+  .chip.sel{border-color:var(--thread);background:#3a2110}
+  .swatches{display:flex;gap:9px;flex-wrap:wrap}
+  .sw{width:40px;height:40px;border-radius:50%;border:3px solid var(--line);cursor:pointer;padding:0}
+  .sw.sel{border-color:#fff}
+  label.slider{display:block;margin-top:12px;color:var(--muted);font-size:.9rem}
+  input[type=range]{width:100%;accent-color:var(--thread);height:36px}
+  canvas{width:100%;height:auto;border-radius:16px;border:1px solid var(--line);background:#ddd6c4;display:block}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn{display:inline-flex;align-items:center;min-height:48px;padding:11px 20px;border-radius:999px;font-weight:700;cursor:pointer;border:2px solid var(--thread);background:var(--thread);color:#fff;text-decoration:none;font-size:1rem}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn:hover{filter:brightness(1.15)}
+  .meta{color:var(--muted);margin-top:10px;font-size:.95rem}
+  .meta b{color:var(--ink)}
+  /* stitch list */
+  #list{list-style:none}
+  #list li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  #list .grow{flex:1}
+  #list button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px;cursor:pointer;min-height:40px}
+  textarea{width:100%;min-height:170px;background:#100d09;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;margin-top:14px}
+  /* gallery */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+  .g-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+  .g-card img{width:100%;height:130px;object-fit:contain}
+  .g-card h4{margin:10px 0 4px;font-size:1rem}
+  .g-card p{color:var(--muted);font-size:.85rem;min-height:2.4em}
+  .g-card .dl{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+  .g-card .dl a{font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;text-decoration:none;color:var(--ink)}
+  footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 0;color:var(--muted)}
+  .empty{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="index.html">HERSKY <span>EMBROIDERY PREVIEW</span></a>
+    <nav>
+      <a href="#tool">Preview tool</a>
+      <a href="#list-section">My stitch list</a>
+      <a href="#gallery">All logos</a>
+      <a href="https://www.circleandthread.ca/services.html">Circle &amp; Thread</a>
+      <a href="https://hersky.info">hersky.info</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <p class="kicker">Bring-your-own embroidery · Planning tool</p>
+    <h1>Your logos. Your clothes.<br><em>Stitched, not printed.</em></h1>
+    <p class="lede">Every HERSKY logo, extracted from your own logo library, previewed the way it would actually be embroidered — as thread, in a thread colour you pick, on the kind of item you already own. Build your stitch list, then send it to <strong>Circle &amp; Thread</strong> (Ontario, no minimums, your own garments welcome) for the real digitizing and stitching.</p>
+    <div class="notice"><strong>Honest note:</strong> these previews are simulations made from your logo files. Real embroidery is digitized first — fine detail gets simplified, and the shop stitches a test before the full job. Use this to choose logos, placements and colours with confidence, not as a photo of a finished piece.</div>
+  </div>
+
+  <section id="tool">
+    <h2>The preview tool</h2>
+    <p class="sub">Pick a logo, the item, where it goes, and the thread. Nudge it until it sits right.</p>
+    <div class="tool">
+      <div class="card">
+        <h3>1 · Logo</h3>
+        <div class="picker" id="logoPicker"></div>
+        <h3>2 · Your item</h3>
+        <div class="row" id="garmentRow"></div>
+        <div class="row" id="viewRow" style="margin-top:8px"></div>
+        <h3>3 · Placement</h3>
+        <div class="row" id="placementRow"></div>
+        <h3>4 · Thread</h3>
+        <div class="row" style="margin-bottom:10px">
+          <button class="chip sel" id="modeThread">Thread colour</button>
+          <button class="chip" id="modeArt">As artwork</button>
+        </div>
+        <div class="swatches" id="threadRow"></div>
+        <h3>5 · Fine-tune</h3>
+        <label class="slider">Size <span id="sizeVal"></span><input type="range" id="sizeSlider" min="50" max="170" value="100"></label>
+        <label class="slider">Left ↔ right <input type="range" id="xSlider" min="-12" max="12" value="0"></label>
+        <label class="slider">Up ↔ down <input type="range" id="ySlider" min="-12" max="12" value="0"></label>
+      </div>
+      <div>
+        <canvas id="cv" width="1200" height="900"></canvas>
+        <p class="meta" id="metaLine"></p>
+        <div class="actions">
+          <button class="btn" id="addBtn">＋ Add to my stitch list</button>
+          <button class="btn ghost" id="dlBtn">Download this preview</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="list-section">
+    <h2>My stitch list</h2>
+    <p class="sub">Everything you add shows up here as a ready-to-send quote request for Circle &amp; Thread — they take single pieces, your own garments, and digitize from the PNG files in the gallery below.</p>
+    <ul id="list"></ul>
+    <p class="empty" id="listEmpty">Nothing yet — build a preview above and add it.</p>
+    <textarea id="quoteText" readonly></textarea>
+    <div class="actions">
+      <button class="btn" id="copyBtn">Copy the quote request</button>
+      <a class="btn ghost" href="https://www.circleandthread.ca/services.html">Open Circle &amp; Thread's quote page</a>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <h2>All your logos — extracted</h2>
+    <p class="sub">Pulled from your Logo Library on hersky.info. Each one has the original file plus a transparent-background PNG I cut out for previewing and sending. Detailed pieces stitch best big (like a back piece); the clean marks are ready for chest and hat sizes.</p>
+    <div class="gallery" id="galleryGrid"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>HERSKY Embroidery Preview — a personal planning tool for Jake Hersky. Not a store: nothing is sold here. Embroidery by <a href="https://www.circleandthread.ca/services.html">Circle &amp; Thread</a> (bring your own garments, no minimum) — backup with published prices: <a href="https://www.tshirtelephant.com/services/embroidery">T-Shirt Elephant</a>, Toronto. Garment photos are the neutral bases from your own shop library; your current website hersky.info is untouched by this page.</p>
+  </div>
+</footer>
+
+<script>
+const LOGOS = [
+  {id:"logo-icon", name:"Logo · Icon", note:"The clean face mark. Embroidery-ready at any size."},
+  {id:"logo-mono", name:"Logo · Mono", note:"Clean line version. Embroidery-ready."},
+  {id:"logo-black", name:"Logo · Black variant", note:"Light line art — stitches in light thread on dark cloth."},
+  {id:"logo-white", name:"Logo · White variant", note:"Dark line art — stitches in dark thread on light cloth, or pick any thread colour."},
+  {id:"wordmark-white", name:"Wordmark · White", note:"The HERSKY wordmark. Perfect for hat backs, sleeves and chest lines."},
+  {id:"lockup-minimal", name:"Lockup · Minimal", note:"Simplest lockup — the safest small-size stitch."},
+  {id:"lockup-industrial", name:"Lockup · Industrial", note:"Bold lockup. Good at chest and back sizes."},
+  {id:"lockup-emblem", name:"Lockup · Emblem", note:"Detailed round emblem. Best as a large back piece — the digitizer will simplify it."},
+  {id:"lockup-iconic-industrial", name:"Lockup · Iconic Industrial", note:"Detailed wide lockup. Best at large sizes."},
+  {id:"lockup-metallic", name:"Lockup · Metallic", note:"Detailed. In thread it becomes a one-colour stitch — pick your colour."},
+  {id:"lockup-glitch", name:"Lockup · Glitch", note:"Detailed. Simplifies in digitizing; large placements only."},
+  {id:"lockup-bassquake", name:"Lockup · Bassquake", note:"Tall detailed piece. Best as a big back placement."}
+];
+const GARMENTS = {
+  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.32,w:.26},"Full front":{x:.50,y:.38,w:.36}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
+  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.33,w:.26}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
+  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.32,w:.26},"Full front":{x:.50,y:.38,w:.36}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
+  "dad-hat":    {label:"Dad Hat", maxH:0.30, span:0.46, spanIn:8, views:{front:{placements:{"Front panel":{x:.50,y:.46,w:.20}}}, back:{placements:{"Back arch":{x:.50,y:.45,w:.16}}}}},
+  "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.45,w:.24}}}, back:{placements:{"Back":{x:.50,y:.45,w:.24}}}}},
+  "tote":       {label:"Tote Bag", maxH:0.55, span:0.50, spanIn:15, views:{front:{placements:{"Centre":{x:.50,y:.46,w:.34}}}, back:{placements:{"Centre":{x:.50,y:.46,w:.34}}}}}
+};
+const THREADS = [
+  {name:"Bone White", hex:"#f0ead6"}, {name:"Ink Black", hex:"#17130c"},
+  {name:"Thread Orange", hex:"#bc4a12"}, {name:"Gold", hex:"#c9971c"},
+  {name:"Forest", hex:"#3f5a36"}, {name:"Red", hex:"#a31621"},
+  {name:"Royal", hex:"#24457a"}, {name:"Pink", hex:"#d77fa1"}
+];
+const state = {logo:"logo-icon", garment:"tee", view:"front", placement:"Left chest", mode:"thread", thread:THREADS[0], size:100, dx:0, dy:0, list:[]};
+const $ = s => document.querySelector(s);
+const baseImg = new Image(), logoImg = new Image();
+let logoReady=false, baseReady=false;
+
+function logoURL(id){ return "assets/logos-web/" + id + ".webp"; }
+function baseURL(){ return "assets/bases/" + state.garment + "-" + state.view + ".webp"; }
+function placements(){ return GARMENTS[state.garment].views[state.view].placements; }
+
+function buildPickers(){
+  const lp = $("#logoPicker"); lp.innerHTML="";
+  LOGOS.forEach(l=>{
+    const b=document.createElement("button");
+    if(l.id===state.logo) b.className="sel";
+    b.title=l.name;
+    b.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'">';
+    b.onclick=()=>{state.logo=l.id; buildPickers(); loadLogo();};
+    lp.appendChild(b);
+  });
+  const gr=$("#garmentRow"); gr.innerHTML="";
+  Object.keys(GARMENTS).forEach(g=>{
+    const b=document.createElement("button"); b.className="chip"+(g===state.garment?" sel":""); b.textContent=GARMENTS[g].label;
+    b.onclick=()=>{state.garment=g; state.view="front"; state.placement=Object.keys(placements())[0]; buildPickers(); loadBase();};
+    gr.appendChild(b);
+  });
+  const vr=$("#viewRow"); vr.innerHTML="";
+  ["front","back"].forEach(v=>{
+    const b=document.createElement("button"); b.className="chip"+(v===state.view?" sel":""); b.textContent=v[0].toUpperCase()+v.slice(1);
+    b.onclick=()=>{state.view=v; state.placement=Object.keys(placements())[0]; buildPickers(); loadBase();};
+    vr.appendChild(b);
+  });
+  const pr=$("#placementRow"); pr.innerHTML="";
+  Object.keys(placements()).forEach(p=>{
+    const b=document.createElement("button"); b.className="chip"+(p===state.placement?" sel":""); b.textContent=p;
+    b.onclick=()=>{state.placement=p; buildPickers(); draw();};
+    pr.appendChild(b);
+  });
+  const tr=$("#threadRow"); tr.innerHTML="";
+  THREADS.forEach(t=>{
+    const b=document.createElement("button"); b.className="sw"+(t.name===state.thread.name?" sel":""); b.style.background=t.hex; b.title=t.name;
+    b.onclick=()=>{state.thread=t; buildPickers(); draw();};
+    tr.appendChild(b);
+  });
+  $("#modeThread").className="chip"+(state.mode==="thread"?" sel":"");
+  $("#modeArt").className="chip"+(state.mode==="art"?" sel":"");
+}
+function loadLogo(){ logoReady=false; logoImg.onload=()=>{logoReady=true; draw();}; logoImg.src=logoURL(state.logo); }
+function loadBase(){ baseReady=false; baseImg.onload=()=>{ const cv=$("#cv"); cv.width=baseImg.naturalWidth; cv.height=baseImg.naturalHeight; baseReady=true; draw();}; baseImg.src=baseURL(); }
+
+function tintedLogo(){
+  const c=document.createElement("canvas"); c.width=logoImg.naturalWidth; c.height=logoImg.naturalHeight;
+  const x=c.getContext("2d");
+  x.drawImage(logoImg,0,0);
+  x.globalCompositeOperation="source-in";
+  x.fillStyle=state.thread.hex; x.fillRect(0,0,c.width,c.height);
+  return c;
+}
+function effSize(){
+  const cv=$("#cv"), p=placements()[state.placement], g=GARMENTS[state.garment];
+  let w = p.w * cv.width * (state.size/100);
+  let h = w * logoImg.naturalHeight/Math.max(1,logoImg.naturalWidth);
+  const maxH = (g.maxH||0.62) * cv.height;
+  if(h > maxH){ h = maxH; w = h * logoImg.naturalWidth/Math.max(1,logoImg.naturalHeight); }
+  return {w:w, h:h, wFrac: w/cv.width};
+}
+function draw(){
+  const cv=$("#cv"), ctx=cv.getContext("2d");
+  if(!baseReady) return;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(baseImg,0,0);
+  if(logoReady){
+    const p=placements()[state.placement];
+    const g=GARMENTS[state.garment];
+    const es = effSize();
+    const wpx = es.w;
+    const src = state.mode==="thread" ? tintedLogo() : logoImg;
+    const sw = src.width||logoImg.naturalWidth, sh = src.height||logoImg.naturalHeight;
+    const hpx = es.h;
+    const cx = (p.x + state.dx/100) * cv.width, cy = (p.y + state.dy/100) * cv.height;
+    ctx.save();
+    ctx.globalAlpha=0.22; ctx.translate(1.5,2);
+    if(state.mode==="thread"){ const sh2=document.createElement("canvas"); sh2.width=sw; sh2.height=sh; const sx=sh2.getContext("2d"); sx.drawImage(logoImg,0,0); sx.globalCompositeOperation="source-in"; sx.fillStyle="#000"; sx.fillRect(0,0,sw,sh); ctx.drawImage(sh2, cx-wpx/2, cy-hpx/2, wpx, hpx); }
+    ctx.restore();
+    ctx.drawImage(src, cx-wpx/2, cy-hpx/2, wpx, hpx);
+    const inches = es.wFrac/g.span*g.spanIn;
+    $("#metaLine").innerHTML = "<b>"+LOGOS.find(l=>l.id===state.logo).name+"</b> on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · "+(state.mode==="thread" ? "thread: <b>"+state.thread.name+"</b>" : "<b>as artwork</b> (multi-tone)");
+  }
+  $("#sizeVal").textContent = state.size+"%";
+}
+function currentSummary(){
+  const p=placements()[state.placement]; const g=GARMENTS[state.garment];
+  const inches=(logoReady? effSize().wFrac/g.span*g.spanIn : (p.w*(state.size/100))/g.span*g.spanIn).toFixed(1);
+  return {logo:LOGOS.find(l=>l.id===state.logo).name, garment:g.label+" ("+state.view+")", placement:state.placement, width:inches+" in approx", thread: state.mode==="thread" ? state.thread.name : "As artwork (digitizer to advise)"};
+}
+function renderList(){
+  const ul=$("#list"); ul.innerHTML="";
+  $("#listEmpty").style.display = state.list.length? "none":"block";
+  state.list.forEach((it,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML='<span class="grow"><b>'+it.logo+'</b> — my '+it.garment+', '+it.placement+', ~'+it.width+', thread: '+it.thread+'</span>';
+    const b=document.createElement("button"); b.textContent="Remove";
+    b.onclick=()=>{state.list.splice(i,1); renderList();};
+    li.appendChild(b); ul.appendChild(li);
+  });
+  let txt="Hi Circle & Thread — I'd like a quote to embroider my own logos onto garments I already own (bring-my-own). Here is my list:\n";
+  state.list.forEach((it,i)=>{ txt += "\n"+(i+1)+". "+it.logo+" — on my "+it.garment+", "+it.placement+", about "+it.width+" wide, thread: "+it.thread; });
+  txt += "\n\nMy logo files: I can send the transparent PNGs (and originals) from my logo library. Please digitize and stitch a test first, and advise if any design needs simplifying for its size. Quantities: 1 of each to start. Thanks! — Jake Hersky, Ottawa";
+  $("#quoteText").value = state.list.length? txt : "";
+}
+$("#modeThread").onclick=()=>{state.mode="thread"; buildPickers(); draw();};
+$("#modeArt").onclick=()=>{state.mode="art"; buildPickers(); draw();};
+$("#sizeSlider").oninput=e=>{state.size=+e.target.value; draw();};
+$("#xSlider").oninput=e=>{state.dx=+e.target.value; draw();};
+$("#ySlider").oninput=e=>{state.dy=+e.target.value; draw();};
+$("#addBtn").onclick=()=>{ state.list.push(currentSummary()); renderList(); document.querySelector("#list-section").scrollIntoView({behavior:"smooth"}); };
+$("#dlBtn").onclick=()=>{ const a=document.createElement("a"); a.download="hersky-embroidery-preview-"+state.logo+"-"+state.garment+"-"+state.view+".png"; a.href=$("#cv").toDataURL("image/png"); a.click(); };
+$("#copyBtn").onclick=()=>{ const t=$("#quoteText"); t.select(); navigator.clipboard && navigator.clipboard.writeText(t.value); };
+
+const gg=$("#galleryGrid");
+LOGOS.forEach(l=>{
+  const d=document.createElement("div"); d.className="g-card";
+  d.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'"><h4>'+l.name+'</h4><p>'+l.note+'</p><div class="dl"><a href="assets/logos-png/'+l.id+'.png" download>Transparent PNG</a><a href="assets/logos/'+l.id+'.webp" download>Original</a></div>';
+  gg.appendChild(d);
+});
+buildPickers(); loadLogo(); loadBase(); renderList();
+</script>
+</body>
+</html>
