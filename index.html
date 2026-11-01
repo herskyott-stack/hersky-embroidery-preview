@@ -73,6 +73,15 @@
   .g-card .dl a,.g-card .dl button{font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;text-decoration:none;color:var(--ink);background:none;cursor:pointer;min-height:36px}
   footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 0;color:var(--muted)}
   .empty{color:var(--muted);font-style:italic}
+  .stage{position:relative;border-radius:16px;border:1px solid var(--line);overflow:hidden;background:#ddd6c4}
+  .stage img.base{width:100%;display:block}
+  .stage img.over{position:absolute;object-fit:contain;transform:translate(-50%,-50%)}
+  .design-tools{margin:10px 0}
+  .design-tools input[type=search]{width:100%;padding:11px 13px;border-radius:10px;border:2px solid var(--line);background:#100d09;color:var(--ink);min-height:46px;font-size:1rem}
+  .picker.design{grid-template-columns:repeat(4,1fr)}
+  .picker.design button{min-height:58px;padding:4px}
+  .picker.design button img{height:54px;object-fit:cover;width:100%}
+  .design-scroll{max-height:346px}
 </style>
 </head>
 <body>
@@ -94,7 +103,7 @@
   <div class="hero">
     <p class="kicker">Bring-your-own embroidery · Planning tool</p>
     <h1>Your logos. Your clothes.<br><em>Stitched, not printed.</em></h1>
-    <p class="lede">Every HERSKY logo you own — the 12 from your Logo Library <strong>plus all 135 album logos, in full colour</strong> — previewed on the kind of item you already have. Pick a logo, a garment, a placement, keep it in colour or switch it to a single thread colour, then build your stitch list for <strong>Circle &amp; Thread</strong> (Ontario, no minimums, your own garments welcome).</p>
+    <p class="lede">Every HERSKY logo you own — the 12 from your Logo Library <strong>plus all 135 album logos, in full colour</strong> — plus <strong>all 9,424 designs from your current store</strong> — previewed on the kind of item you already have. Pick a logo, a garment, a placement, keep it in colour or switch it to a single thread colour, then build your stitch list for <strong>Circle &amp; Thread</strong> (Ontario, no minimums, your own garments welcome).</p>
     <div class="notice"><strong>Honest note:</strong> these previews are simulations made from your logo files. Real embroidery is digitized first — fine detail gets simplified and colours become thread colours — and the shop stitches a test before the full job. Use this to choose logos, placements and sizes with confidence, not as a photo of a finished piece.</div>
   </div>
 
@@ -108,6 +117,13 @@
         <div class="picker" id="logoPicker"></div>
         <h3>1b · Logo — album (all 135, in colour)</h3>
         <div class="picker-scroll"><div class="picker var" id="varPicker"></div></div>
+        <h3>1c · Store designs — all 9,424</h3>
+        <div class="row" id="designFilters"></div>
+        <div class="design-tools"><input type="search" id="designSearch" placeholder="Search designs by name or ID…"></div>
+        <p class="meta" id="designCount">Loading designs…</p>
+        <div class="picker-scroll design-scroll"><div class="picker design" id="designGrid"></div></div>
+        <div class="actions"><button class="btn ghost" id="designMore" style="display:none">Show more designs</button></div>
+        <p class="meta">Store designs open on the back (your no-text-on-fronts rule) — flip to Front if you want a front panel. Designs are full artwork; embroidery means the shop digitizes and simplifies them into thread colours.</p>
         <h3>2 · Your item</h3>
         <div class="row" id="garmentRow"></div>
         <div class="row" id="viewRow" style="margin-top:8px"></div>
@@ -127,6 +143,8 @@
       <div>
         <canvas id="cv" width="1200" height="900"></canvas>
         <p class="meta" id="ruleNote" style="display:none;color:var(--gold)"></p>
+        <div id="stage" class="stage" style="display:none"><img class="base" id="stageBase" alt="Garment"><img class="over" id="designOverlay" alt="Store design"></div>
+        <p class="meta" id="designNote" style="display:none">Store designs preview as full-colour artwork panels — the colours you see are the design's own. Thread conversion happens when the shop digitizes it.</p>
         <p class="meta" id="metaLine"></p>
         <div class="actions">
           <button class="btn" id="addBtn">＋ Add to my stitch list</button>
@@ -198,6 +216,7 @@ const THREADS = [
   {name:"Royal", hex:"#24457a"}, {name:"Pink", hex:"#d77fa1"}
 ];
 const state = {logo:"logo-icon", garment:"tee", view:"front", placement:"Centre chest", mode:"art", thread:THREADS[0], size:100, dx:0, dy:0, list:[]};
+state.design=null; state.df={album:"all",q:"",shown:60};
 const $ = s => document.querySelector(s);
 const baseImg = new Image(), logoImg = new Image();
 let logoReady=false, baseReady=false;
@@ -208,6 +227,7 @@ function isVar(id){ return id.indexOf("var-")===0; }
 function logoHasText(id){ return isVar(id) || TEXT_LOGOS.has(id); }
 function enforceTextRule(){
   const note = $("#ruleNote");
+  if(state.design){ note.style.display = "none"; return false; }
   if(SHIRTS.has(state.garment) && state.view==="front" && logoHasText(state.logo)){
     state.view = "back";
     state.placement = Object.keys(placements())[0];
@@ -234,7 +254,7 @@ function buildPickers(){
     if(l.id===state.logo) b.className="sel";
     b.title=l.name;
     b.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'">';
-    b.onclick=()=>{state.logo=l.id; if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    b.onclick=()=>{state.logo=l.id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     lp.appendChild(b);
   });
   const vp = $("#varPicker"); vp.innerHTML="";
@@ -243,19 +263,19 @@ function buildPickers(){
     if(id===state.logo) b.className="sel";
     b.title=logoName(id);
     b.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'">';
-    b.onclick=()=>{state.logo=id; if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    b.onclick=()=>{state.logo=id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     vp.appendChild(b);
   });
   const gr=$("#garmentRow"); gr.innerHTML="";
   Object.keys(GARMENTS).forEach(g=>{
     const b=document.createElement("button"); b.className="chip"+(g===state.garment?" sel":""); b.textContent=GARMENTS[g].label;
-    b.onclick=()=>{state.garment=g; state.view="front"; state.placement=Object.keys(placements())[0]; if(!enforceTextRule()){ buildPickers(); loadBase(); } };
+    b.onclick=()=>{state.garment=g; if(state.design){ state.placement=Object.keys(placements())[0]; buildPickers(); loadBase(); showStage(); } else { state.view="front"; state.placement=Object.keys(placements())[0]; if(!enforceTextRule()){ buildPickers(); loadBase(); } } };
     gr.appendChild(b);
   });
   const vr=$("#viewRow"); vr.innerHTML="";
   ["front","back"].forEach(v=>{
     const b=document.createElement("button"); b.className="chip"+(v===state.view?" sel":""); b.textContent=v[0].toUpperCase()+v.slice(1);
-    b.onclick=()=>{state.view=v; state.placement=Object.keys(placements())[0]; if(!enforceTextRule()){ buildPickers(); loadBase(); } };
+    b.onclick=()=>{state.view=v; state.placement=Object.keys(placements())[0]; if(state.design){ buildPickers(); loadBase(); showStage(); } else if(!enforceTextRule()){ buildPickers(); loadBase(); } };
     vr.appendChild(b);
   });
   const pr=$("#placementRow"); pr.innerHTML="";
@@ -294,6 +314,7 @@ function effSize(){
 }
 function draw(){
   const cv=$("#cv"), ctx=cv.getContext("2d");
+  if(state.design){ overlaySet(); return; }
   if(!baseReady) return;
   ctx.clearRect(0,0,cv.width,cv.height);
   ctx.drawImage(baseImg,0,0);
@@ -318,6 +339,7 @@ function draw(){
   $("#sizeVal").textContent = state.size+"%";
 }
 function currentSummary(){
+  if(state.design){ const g=GARMENTS[state.garment]; const p=placements()[state.placement]; const inches=((p.w*(state.size/100))/g.span*g.spanIn).toFixed(1); return {logo:state.design[1]+" ("+state.design[0]+", Album "+state.design[2]+")", garment:g.label+" ("+state.view+")", placement:state.placement, width:inches+" in approx", thread:"Full-colour store design (digitizer to convert)"}; }
   const p=placements()[state.placement]; const g=GARMENTS[state.garment];
   const inches=(logoReady? effSize().wFrac/g.span*g.spanIn : (p.w*(state.size/100))/g.span*g.spanIn).toFixed(1);
   return {logo:logoName(state.logo), garment:g.label+" ("+state.view+")", placement:state.placement, width:inches+" in approx", thread: state.mode==="thread" ? state.thread.name : "Full colour design (digitizer to convert to thread)"};
@@ -343,7 +365,7 @@ $("#sizeSlider").oninput=e=>{state.size=+e.target.value; draw();};
 $("#xSlider").oninput=e=>{state.dx=+e.target.value; draw();};
 $("#ySlider").oninput=e=>{state.dy=+e.target.value; draw();};
 $("#addBtn").onclick=()=>{ state.list.push(currentSummary()); renderList(); document.querySelector("#list-section").scrollIntoView({behavior:"smooth"}); };
-$("#dlBtn").onclick=()=>{ const a=document.createElement("a"); a.download="hersky-embroidery-preview-"+state.logo+"-"+state.garment+"-"+state.view+".png"; a.href=$("#cv").toDataURL("image/png"); a.click(); };
+$("#dlBtn").onclick=()=>{ if(state.design){ window.open(designURL(state.design,"print"), "_blank"); return; } const a=document.createElement("a"); a.download="hersky-embroidery-preview-"+state.logo+"-"+state.garment+"-"+state.view+".png"; a.href=$("#cv").toDataURL("image/png"); a.click(); };
 $("#copyBtn").onclick=()=>{ const t=$("#quoteText"); t.select(); navigator.clipboard && navigator.clipboard.writeText(t.value); };
 
 const gg=$("#galleryGrid");
@@ -357,9 +379,98 @@ VARIATIONS.forEach(id=>{
   const num = id.slice(4);
   const d=document.createElement("div"); d.className="g-card";
   d.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'"><h4>'+logoName(id)+'</h4><div class="dl"><button type="button">Preview</button><a href="assets/variations-orig/story-'+num+'.jpg" download>Original</a></div>';
-  d.querySelector("button").onclick=()=>{ state.logo=id; if(!enforceTextRule()){ buildPickers(); } loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
+  d.querySelector("button").onclick=()=>{ state.logo=id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); } loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
   ag.appendChild(d);
 });
+
+let DESIGNS=[], DPREFIX=[];
+function designInit(data){ DPREFIX=data.p; DESIGNS=data.d; buildDesignFilters(); renderDesignGrid(); }
+function designURL(e, kind){ return kind==="print" ? DPREFIX[e[4]]+e[5] : DPREFIX[e[6]]+e[7]; }
+function designFiltered(){
+  const f=state.df; const q=f.q.trim().toLowerCase();
+  return DESIGNS.filter(e=>{
+    if(f.album==="creatures"){ if(e[3].indexOf("creatures")<0) return false; }
+    else if(f.album!=="all"){ if(e[2]!==+f.album) return false; }
+    if(q && (e[1].toLowerCase().indexOf(q)<0 && e[0].toLowerCase().indexOf(q)<0)) return false;
+    return true;
+  });
+}
+function buildDesignFilters(){
+  const row=$("#designFilters"); row.innerHTML="";
+  [["all","All"],["1","Album 1"],["2","Album 2"],["3","Album 3"],["creatures","Creatures"]].forEach(function(pair){
+    const v=pair[0], label=pair[1];
+    const b=document.createElement("button"); b.className="chip"+(state.df.album===v?" sel":""); b.textContent=label;
+    b.onclick=()=>{state.df.album=v; state.df.shown=60; buildDesignFilters(); renderDesignGrid();};
+    row.appendChild(b);
+  });
+}
+function renderDesignGrid(){
+  const grid=$("#designGrid"); if(!grid) return;
+  const list=designFiltered();
+  $("#designCount").textContent = list.length.toLocaleString()+" designs"+(state.df.q? " matching \""+state.df.q+"\"" : "");
+  grid.innerHTML="";
+  list.slice(0, state.df.shown).forEach(e=>{
+    const b=document.createElement("button");
+    if(state.design && state.design[0]===e[0]) b.className="sel";
+    b.title=e[1]+" · Album "+e[2];
+    b.innerHTML='<img loading="lazy" src="'+designURL(e,"thumb")+'" alt="">';
+    b.onclick=()=>selectDesign(e);
+    grid.appendChild(b);
+  });
+  $("#designMore").style.display = list.length>state.df.shown ? "inline-flex" : "none";
+}
+function selectDesign(e){
+  state.design=e;
+  if(SHIRTS.has(state.garment)){
+    state.view="back";
+    const bp=GARMENTS[state.garment].views.back.placements;
+    state.placement = bp["Large back"] ? "Large back" : Object.keys(bp)[0];
+  } else {
+    state.placement = Object.keys(placements())[0];
+  }
+  $("#ruleNote").style.display="none";
+  buildPickers(); renderDesignGrid(); loadBase(); showStage(); updateMetaDesign();
+}
+function showStage(){
+  const has = !!state.design;
+  $("#cv").style.display = has? "none":"block";
+  $("#stage").style.display = has? "block":"none";
+  $("#designNote").style.display = has? "block":"none";
+  $("#dlBtn").textContent = has? "Open full design file" : "Download this preview";
+  if(has){ $("#stageBase").src = baseURL(); $("#designOverlay").src = designURL(state.design,"thumb"); }
+}
+function overlaySet(){
+  if(!state.design) return;
+  const sb=$("#stageBase"), ov=$("#designOverlay");
+  const W = sb.clientWidth, H = sb.clientHeight;
+  if(!W||!H||!ov.naturalWidth) return;
+  const p=placements()[state.placement], g=GARMENTS[state.garment];
+  let w = p.w * W * (state.size/100);
+  let h = w * ov.naturalHeight/ov.naturalWidth;
+  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * H;
+  if(h>maxH){ h=maxH; w=h*ov.naturalWidth/ov.naturalHeight; }
+  let cx=(p.x+state.dx/100)*W, cy=(p.y+state.dy/100)*H;
+  const topLimit=(p.topY||0)*H;
+  if(cy-h/2<topLimit) cy=topLimit+h/2;
+  ov.style.width=w+"px"; ov.style.height=h+"px";
+  ov.style.left=cx+"px"; ov.style.top=cy+"px";
+  updateMetaDesign(w/W);
+}
+function updateMetaDesign(wFrac){
+  if(!state.design) return;
+  const g=GARMENTS[state.garment];
+  const wf = wFrac!==undefined? wFrac : placements()[state.placement].w*(state.size/100);
+  const inches = wf/g.span*g.spanIn;
+  $("#metaLine").innerHTML = "<b>"+state.design[1]+"</b> ("+state.design[0]+", Album "+state.design[2]+") on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · <b>full-colour design</b>";
+}
+$("#stageBase").addEventListener("load", overlaySet);
+$("#designOverlay").addEventListener("load", overlaySet);
+window.addEventListener("resize", overlaySet);
+$("#designSearch").addEventListener("input", e=>{ state.df.q=e.target.value; state.df.shown=60; renderDesignGrid(); });
+$("#designMore").onclick=()=>{ state.df.shown+=60; renderDesignGrid(); };
+if(window.DESIGNS_DATA){ designInit(window.DESIGNS_DATA); }
+else { fetch("designs.json").then(r=>r.json()).then(designInit).catch(()=>{ const c=$("#designCount"); if(c) c.textContent="Design list could not load — check your connection."; }); }
+
 buildPickers(); loadLogo(); loadBase(); renderList();
 </script>
 </body>
