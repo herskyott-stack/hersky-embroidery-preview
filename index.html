@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HERSKY Embroidery Preview — Your Logos on Your Own Items</title>
-<meta name="description" content="Preview every HERSKY logo embroidered on your own tees, hoodies, hats and more. Pick a logo, garment, placement and thread colour — then build a stitch list for Circle & Thread, the bring-your-own embroidery shop.">
+<meta name="description" content="Preview every HERSKY logo — the full Logo Library plus all 135 album logos, in colour — embroidered on your own tees, hoodies, hats and more. Build a stitch list for Circle & Thread, the bring-your-own embroidery shop.">
 <style>
   :root{--bg:#14100c;--panel:#1f1913;--panel2:#282017;--ink:#f3ead8;--muted:#b8a888;--thread:#bc4a12;--gold:#c9971c;--line:#3a2f21}
   *{margin:0;padding:0;box-sizing:border-box}
@@ -27,7 +27,6 @@
   section{padding:36px 0}
   h2{font-size:1.7rem;margin-bottom:8px}
   .sub{color:var(--muted);margin-bottom:20px;max-width:44rem}
-  /* tool layout */
   .tool{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}
   @media(max-width:900px){.tool{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
@@ -37,6 +36,10 @@
   .picker button{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:6px;cursor:pointer;min-height:64px}
   .picker button.sel{border-color:var(--thread)}
   .picker button img{width:100%;height:52px;object-fit:contain;display:block}
+  .picker.var{grid-template-columns:repeat(5,1fr)}
+  .picker.var button{min-height:58px}
+  .picker.var button img{height:56px}
+  .picker-scroll{max-height:308px;overflow-y:auto;padding-right:4px}
   .checker{background:repeating-conic-gradient(#2e2618 0% 25%, #241c11 0% 50%) 50% / 14px 14px;border-radius:6px}
   .row{display:flex;gap:8px;flex-wrap:wrap}
   .chip{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;font-weight:600;min-height:44px}
@@ -53,20 +56,21 @@
   .btn:hover{filter:brightness(1.15)}
   .meta{color:var(--muted);margin-top:10px;font-size:.95rem}
   .meta b{color:var(--ink)}
-  /* stitch list */
   #list{list-style:none}
   #list li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   #list .grow{flex:1}
   #list button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px;cursor:pointer;min-height:40px}
   textarea{width:100%;min-height:170px;background:#100d09;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;margin-top:14px}
-  /* gallery */
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+  .gallery.album{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
   .g-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
   .g-card img{width:100%;height:130px;object-fit:contain}
+  .gallery.album .g-card img{height:110px}
   .g-card h4{margin:10px 0 4px;font-size:1rem}
+  .gallery.album .g-card h4{font-size:.9rem}
   .g-card p{color:var(--muted);font-size:.85rem;min-height:2.4em}
   .g-card .dl{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap}
-  .g-card .dl a{font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;text-decoration:none;color:var(--ink)}
+  .g-card .dl a,.g-card .dl button{font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:7px 10px;text-decoration:none;color:var(--ink);background:none;cursor:pointer;min-height:36px}
   footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 0;color:var(--muted)}
   .empty{color:var(--muted);font-style:italic}
 </style>
@@ -78,7 +82,8 @@
     <nav>
       <a href="#tool">Preview tool</a>
       <a href="#list-section">My stitch list</a>
-      <a href="#gallery">All logos</a>
+      <a href="#gallery">Logo library</a>
+      <a href="#album">Album logos</a>
       <a href="https://www.circleandthread.ca/services.html">Circle &amp; Thread</a>
       <a href="https://hersky.info">hersky.info</a>
     </nav>
@@ -89,26 +94,28 @@
   <div class="hero">
     <p class="kicker">Bring-your-own embroidery · Planning tool</p>
     <h1>Your logos. Your clothes.<br><em>Stitched, not printed.</em></h1>
-    <p class="lede">Every HERSKY logo, extracted from your own logo library, previewed the way it would actually be embroidered — as thread, in a thread colour you pick, on the kind of item you already own. Build your stitch list, then send it to <strong>Circle &amp; Thread</strong> (Ontario, no minimums, your own garments welcome) for the real digitizing and stitching.</p>
-    <div class="notice"><strong>Honest note:</strong> these previews are simulations made from your logo files. Real embroidery is digitized first — fine detail gets simplified, and the shop stitches a test before the full job. Use this to choose logos, placements and colours with confidence, not as a photo of a finished piece.</div>
+    <p class="lede">Every HERSKY logo you own — the 12 from your Logo Library <strong>plus all 135 album logos, in full colour</strong> — previewed on the kind of item you already have. Pick a logo, a garment, a placement, keep it in colour or switch it to a single thread colour, then build your stitch list for <strong>Circle &amp; Thread</strong> (Ontario, no minimums, your own garments welcome).</p>
+    <div class="notice"><strong>Honest note:</strong> these previews are simulations made from your logo files. Real embroidery is digitized first — fine detail gets simplified and colours become thread colours — and the shop stitches a test before the full job. Use this to choose logos, placements and sizes with confidence, not as a photo of a finished piece.</div>
   </div>
 
   <section id="tool">
     <h2>The preview tool</h2>
-    <p class="sub">Pick a logo, the item, where it goes, and the thread. Nudge it until it sits right.</p>
+    <p class="sub">Pick a logo, the item, where it goes. Everything stays centred on the placement — nudge it only if you want it off-centre.</p>
     <div class="tool">
       <div class="card">
-        <h3>1 · Logo</h3>
+        <h3>1 · Logo — library</h3>
         <div class="picker" id="logoPicker"></div>
+        <h3>1b · Logo — album (all 135, in colour)</h3>
+        <div class="picker-scroll"><div class="picker var" id="varPicker"></div></div>
         <h3>2 · Your item</h3>
         <div class="row" id="garmentRow"></div>
         <div class="row" id="viewRow" style="margin-top:8px"></div>
         <h3>3 · Placement</h3>
         <div class="row" id="placementRow"></div>
-        <h3>4 · Thread</h3>
+        <h3>4 · Colour</h3>
         <div class="row" style="margin-bottom:10px">
-          <button class="chip sel" id="modeThread">Thread colour</button>
-          <button class="chip" id="modeArt">As artwork</button>
+          <button class="chip sel" id="modeArt">With colour</button>
+          <button class="chip" id="modeThread">One thread colour</button>
         </div>
         <div class="swatches" id="threadRow"></div>
         <h3>5 · Fine-tune</h3>
@@ -129,7 +136,7 @@
 
   <section id="list-section">
     <h2>My stitch list</h2>
-    <p class="sub">Everything you add shows up here as a ready-to-send quote request for Circle &amp; Thread — they take single pieces, your own garments, and digitize from the PNG files in the gallery below.</p>
+    <p class="sub">Everything you add shows up here as a ready-to-send quote request for Circle &amp; Thread — they take single pieces, your own garments, and digitize from the PNG/JPG files in the galleries below.</p>
     <ul id="list"></ul>
     <p class="empty" id="listEmpty">Nothing yet — build a preview above and add it.</p>
     <textarea id="quoteText" readonly></textarea>
@@ -140,9 +147,15 @@
   </section>
 
   <section id="gallery">
-    <h2>All your logos — extracted</h2>
-    <p class="sub">Pulled from your Logo Library on hersky.info. Each one has the original file plus a transparent-background PNG I cut out for previewing and sending. Detailed pieces stitch best big (like a back piece); the clean marks are ready for chest and hat sizes.</p>
+    <h2>Logo library — extracted</h2>
+    <p class="sub">Pulled from your Logo Library on hersky.info, backgrounds cut out into transparent PNGs. Detailed pieces stitch best big (like a back piece); the clean marks are ready for chest and hat sizes.</p>
     <div class="gallery" id="galleryGrid"></div>
+  </section>
+
+  <section id="album">
+    <h2>Album logos — all 135, in colour</h2>
+    <p class="sub">Your full album set — the same 135 logos from your story album. Each one was cropped to the artwork and cut out from its black background so it sits properly on a garment. These are detailed full-colour pieces: an embroidery digitizer will simplify them into thread colours, so treat the colour preview as the design and the one-thread-colour mode as the stitch reality. Tap “Preview” on any of them to load it into the tool.</p>
+    <div class="gallery album" id="albumGrid"></div>
   </section>
 </main>
 
@@ -167,13 +180,14 @@ const LOGOS = [
   {id:"lockup-glitch", name:"Lockup · Glitch", note:"Detailed. Simplifies in digitizing; large placements only."},
   {id:"lockup-bassquake", name:"Lockup · Bassquake", note:"Tall detailed piece. Best as a big back placement."}
 ];
+const VARIATIONS = [["var-001", "var-002", "var-003", "var-004", "var-005", "var-006", "var-007", "var-008", "var-009", "var-010", "var-011", "var-012", "var-013", "var-014", "var-015", "var-016", "var-017", "var-018", "var-019", "var-020", "var-021", "var-022", "var-023", "var-024", "var-025", "var-026", "var-027", "var-028", "var-029", "var-030", "var-031", "var-032", "var-033", "var-034", "var-035", "var-036", "var-037", "var-038", "var-039", "var-040", "var-041", "var-042", "var-043", "var-044", "var-045", "var-046", "var-047", "var-048", "var-049", "var-050", "var-051", "var-052", "var-053", "var-054", "var-055", "var-056", "var-057", "var-058", "var-059", "var-060", "var-061", "var-062", "var-063", "var-064", "var-065", "var-066", "var-067", "var-068", "var-069", "var-070", "var-071", "var-072", "var-073", "var-074", "var-075", "var-076", "var-077", "var-078", "var-079", "var-080", "var-081", "var-082", "var-083", "var-084", "var-085", "var-086", "var-087", "var-088", "var-089", "var-090", "var-091", "var-092", "var-093", "var-094", "var-095", "var-096", "var-097", "var-098", "var-099", "var-100", "var-101", "var-102", "var-103", "var-104", "var-105", "var-106", "var-107", "var-108", "var-109", "var-110", "var-111", "var-112", "var-113", "var-114", "var-115", "var-116", "var-117", "var-118", "var-119", "var-120", "var-121", "var-122", "var-123", "var-124", "var-125", "var-126", "var-127", "var-128", "var-129", "var-130", "var-131", "var-132", "var-133", "var-134", "var-135"]];
 const GARMENTS = {
-  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.32,w:.26},"Full front":{x:.50,y:.38,w:.36}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
-  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.33,w:.26}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
-  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13},"Centre chest":{x:.50,y:.32,w:.26},"Full front":{x:.50,y:.38,w:.36}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38},"Upper back":{x:.50,y:.17,w:.18}}}}},
-  "dad-hat":    {label:"Dad Hat", maxH:0.30, span:0.46, spanIn:8, views:{front:{placements:{"Front panel":{x:.50,y:.46,w:.20}}}, back:{placements:{"Back arch":{x:.50,y:.45,w:.16}}}}},
-  "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.45,w:.24}}}, back:{placements:{"Back":{x:.50,y:.45,w:.24}}}}},
-  "tote":       {label:"Tote Bag", maxH:0.55, span:0.50, spanIn:15, views:{front:{placements:{"Centre":{x:.50,y:.46,w:.34}}}, back:{placements:{"Centre":{x:.50,y:.46,w:.34}}}}}
+  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.33,w:.26,maxH:.50,topY:.17}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "dad-hat":    {label:"Dad Hat", maxH:0.30, span:0.46, spanIn:8, views:{front:{placements:{"Front panel":{x:.50,y:.46,w:.20,maxH:.30,topY:.26}}}, back:{placements:{"Back arch":{x:.50,y:.45,w:.16,maxH:.24,topY:.30}}}}},
+  "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.45,w:.24,maxH:.32,topY:.24}}}, back:{placements:{"Back":{x:.50,y:.45,w:.24,maxH:.32,topY:.24}}}}},
+  "tote":       {label:"Tote Bag", maxH:0.55, span:0.50, spanIn:15, views:{front:{placements:{"Centre":{x:.50,y:.46,w:.34,maxH:.55,topY:.14}}}, back:{placements:{"Centre":{x:.50,y:.46,w:.34,maxH:.55,topY:.14}}}}}
 };
 const THREADS = [
   {name:"Bone White", hex:"#f0ead6"}, {name:"Ink Black", hex:"#17130c"},
@@ -181,12 +195,17 @@ const THREADS = [
   {name:"Forest", hex:"#3f5a36"}, {name:"Red", hex:"#a31621"},
   {name:"Royal", hex:"#24457a"}, {name:"Pink", hex:"#d77fa1"}
 ];
-const state = {logo:"logo-icon", garment:"tee", view:"front", placement:"Left chest", mode:"thread", thread:THREADS[0], size:100, dx:0, dy:0, list:[]};
+const state = {logo:"logo-icon", garment:"tee", view:"front", placement:"Centre chest", mode:"art", thread:THREADS[0], size:100, dx:0, dy:0, list:[]};
 const $ = s => document.querySelector(s);
 const baseImg = new Image(), logoImg = new Image();
 let logoReady=false, baseReady=false;
 
-function logoURL(id){ return "assets/logos-web/" + id + ".webp"; }
+function isVar(id){ return id.indexOf("var-")===0; }
+function logoURL(id){ return isVar(id) ? "assets/variations/" + id + ".webp" : "assets/logos-web/" + id + ".webp"; }
+function logoName(id){
+  if(isVar(id)) return "Album Logo #" + parseInt(id.slice(4),10);
+  const l = LOGOS.find(x=>x.id===id); return l ? l.name : id;
+}
 function baseURL(){ return "assets/bases/" + state.garment + "-" + state.view + ".webp"; }
 function placements(){ return GARMENTS[state.garment].views[state.view].placements; }
 
@@ -199,6 +218,15 @@ function buildPickers(){
     b.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'">';
     b.onclick=()=>{state.logo=l.id; buildPickers(); loadLogo();};
     lp.appendChild(b);
+  });
+  const vp = $("#varPicker"); vp.innerHTML="";
+  VARIATIONS.forEach(id=>{
+    const b=document.createElement("button");
+    if(id===state.logo) b.className="sel";
+    b.title=logoName(id);
+    b.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'">';
+    b.onclick=()=>{state.logo=id; buildPickers(); loadLogo();};
+    vp.appendChild(b);
   });
   const gr=$("#garmentRow"); gr.innerHTML="";
   Object.keys(GARMENTS).forEach(g=>{
@@ -221,7 +249,7 @@ function buildPickers(){
   const tr=$("#threadRow"); tr.innerHTML="";
   THREADS.forEach(t=>{
     const b=document.createElement("button"); b.className="sw"+(t.name===state.thread.name?" sel":""); b.style.background=t.hex; b.title=t.name;
-    b.onclick=()=>{state.thread=t; buildPickers(); draw();};
+    b.onclick=()=>{state.thread=t; if(state.mode!=="thread"){state.mode="thread";} buildPickers(); draw();};
     tr.appendChild(b);
   });
   $("#modeThread").className="chip"+(state.mode==="thread"?" sel":"");
@@ -242,7 +270,7 @@ function effSize(){
   const cv=$("#cv"), p=placements()[state.placement], g=GARMENTS[state.garment];
   let w = p.w * cv.width * (state.size/100);
   let h = w * logoImg.naturalHeight/Math.max(1,logoImg.naturalWidth);
-  const maxH = (g.maxH||0.62) * cv.height;
+  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * cv.height;
   if(h > maxH){ h = maxH; w = h * logoImg.naturalWidth/Math.max(1,logoImg.naturalHeight); }
   return {w:w, h:h, wFrac: w/cv.width};
 }
@@ -255,25 +283,26 @@ function draw(){
     const p=placements()[state.placement];
     const g=GARMENTS[state.garment];
     const es = effSize();
-    const wpx = es.w;
+    const wpx = es.w, hpx = es.h;
     const src = state.mode==="thread" ? tintedLogo() : logoImg;
     const sw = src.width||logoImg.naturalWidth, sh = src.height||logoImg.naturalHeight;
-    const hpx = es.h;
-    const cx = (p.x + state.dx/100) * cv.width, cy = (p.y + state.dy/100) * cv.height;
+    const cx = (p.x + state.dx/100) * cv.width; let cy = (p.y + state.dy/100) * cv.height;
+    const topLimit = (p.topY||0) * cv.height;
+    if(cy - hpx/2 < topLimit) cy = topLimit + hpx/2;
     ctx.save();
     ctx.globalAlpha=0.22; ctx.translate(1.5,2);
     if(state.mode==="thread"){ const sh2=document.createElement("canvas"); sh2.width=sw; sh2.height=sh; const sx=sh2.getContext("2d"); sx.drawImage(logoImg,0,0); sx.globalCompositeOperation="source-in"; sx.fillStyle="#000"; sx.fillRect(0,0,sw,sh); ctx.drawImage(sh2, cx-wpx/2, cy-hpx/2, wpx, hpx); }
     ctx.restore();
     ctx.drawImage(src, cx-wpx/2, cy-hpx/2, wpx, hpx);
     const inches = es.wFrac/g.span*g.spanIn;
-    $("#metaLine").innerHTML = "<b>"+LOGOS.find(l=>l.id===state.logo).name+"</b> on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · "+(state.mode==="thread" ? "thread: <b>"+state.thread.name+"</b>" : "<b>as artwork</b> (multi-tone)");
+    $("#metaLine").innerHTML = "<b>"+logoName(state.logo)+"</b> on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · "+(state.mode==="thread" ? "thread: <b>"+state.thread.name+"</b>" : "<b>with colour</b> (as artwork)");
   }
   $("#sizeVal").textContent = state.size+"%";
 }
 function currentSummary(){
   const p=placements()[state.placement]; const g=GARMENTS[state.garment];
   const inches=(logoReady? effSize().wFrac/g.span*g.spanIn : (p.w*(state.size/100))/g.span*g.spanIn).toFixed(1);
-  return {logo:LOGOS.find(l=>l.id===state.logo).name, garment:g.label+" ("+state.view+")", placement:state.placement, width:inches+" in approx", thread: state.mode==="thread" ? state.thread.name : "As artwork (digitizer to advise)"};
+  return {logo:logoName(state.logo), garment:g.label+" ("+state.view+")", placement:state.placement, width:inches+" in approx", thread: state.mode==="thread" ? state.thread.name : "Full colour design (digitizer to convert to thread)"};
 }
 function renderList(){
   const ul=$("#list"); ul.innerHTML="";
@@ -287,7 +316,7 @@ function renderList(){
   });
   let txt="Hi Circle & Thread — I'd like a quote to embroider my own logos onto garments I already own (bring-my-own). Here is my list:\n";
   state.list.forEach((it,i)=>{ txt += "\n"+(i+1)+". "+it.logo+" — on my "+it.garment+", "+it.placement+", about "+it.width+" wide, thread: "+it.thread; });
-  txt += "\n\nMy logo files: I can send the transparent PNGs (and originals) from my logo library. Please digitize and stitch a test first, and advise if any design needs simplifying for its size. Quantities: 1 of each to start. Thanks! — Jake Hersky, Ottawa";
+  txt += "\n\nMy logo files: I can send the transparent PNGs / original files from my logo library and album. Please digitize and stitch a test first, and advise if any design needs simplifying for its size. Quantities: 1 of each to start. Thanks! — Jake Hersky, Ottawa";
   $("#quoteText").value = state.list.length? txt : "";
 }
 $("#modeThread").onclick=()=>{state.mode="thread"; buildPickers(); draw();};
@@ -302,8 +331,16 @@ $("#copyBtn").onclick=()=>{ const t=$("#quoteText"); t.select(); navigator.clipb
 const gg=$("#galleryGrid");
 LOGOS.forEach(l=>{
   const d=document.createElement("div"); d.className="g-card";
-  d.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'"><h4>'+l.name+'</h4><p>'+l.note+'</p><div class="dl"><a href="assets/logos-png/'+l.id+'.png" download>Transparent PNG</a><a href="assets/logos/'+l.id+'.webp" download>Original</a></div>';
+  d.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(l.id)+'" alt="'+l.name+'"><h4>'+l.name+'</h4><p>'+l.note+'</p><div class="dl"><a href="assets/logos-png/'+l.id+'.png" download>Transparent PNG</a><a href="assets/logos/'+l.id+'.webp" download>Original</a></div>';
   gg.appendChild(d);
+});
+const ag=$("#albumGrid");
+VARIATIONS.forEach(id=>{
+  const num = id.slice(4);
+  const d=document.createElement("div"); d.className="g-card";
+  d.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'"><h4>'+logoName(id)+'</h4><div class="dl"><button type="button">Preview</button><a href="assets/variations-orig/story-'+num+'.jpg" download>Original</a></div>';
+  d.querySelector("button").onclick=()=>{ state.logo=id; buildPickers(); loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
+  ag.appendChild(d);
 });
 buildPickers(); loadLogo(); loadBase(); renderList();
 </script>
