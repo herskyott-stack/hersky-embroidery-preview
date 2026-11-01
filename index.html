@@ -124,6 +124,13 @@
         <div class="picker-scroll design-scroll"><div class="picker design" id="designGrid"></div></div>
         <div class="actions"><button class="btn ghost" id="designMore" style="display:none">Show more designs</button></div>
         <p class="meta">Store designs open on the back (your no-text-on-fronts rule) — flip to Front if you want a front panel. Designs are full artwork; embroidery means the shop digitizes and simplifies them into thread colours.</p>
+        <h3>1d · Album 4 — Embroidery Cutouts (no background)</h3>
+        <div class="row" id="cutoutFilters"></div>
+        <div class="design-tools"><input type="search" id="cutoutSearch" placeholder="Search cutouts by name or ID…"></div>
+        <p class="meta" id="cutoutCount">Loading cutouts…</p>
+        <div class="picker-scroll design-scroll"><div class="picker design" id="cutoutGrid"></div></div>
+        <div class="actions"><button class="btn ghost" id="cutoutMore" style="display:none">Show more cutouts</button></div>
+        <p class="meta">Album 4 is your store designs with the background stripped out — only the artwork itself stitches. No black square, no panel. Full-scene designs (where the background IS the picture) are not in here; they stay in the panel browser above.</p>
         <h3>2 · Your item</h3>
         <div class="row" id="garmentRow"></div>
         <div class="row" id="viewRow" style="margin-top:8px"></div>
@@ -133,6 +140,7 @@
         <div class="row" style="margin-bottom:10px">
           <button class="chip sel" id="modeArt">With colour</button>
           <button class="chip" id="modeThread">One thread colour</button>
+          <button class="chip" id="stitchToggle">🧵 Stitch view: Off</button>
         </div>
         <div class="swatches" id="threadRow"></div>
         <h3>5 · Fine-tune</h3>
@@ -217,8 +225,11 @@ const THREADS = [
 ];
 const state = {logo:"logo-icon", garment:"tee", view:"front", placement:"Centre chest", mode:"art", thread:THREADS[0], size:100, dx:0, dy:0, list:[]};
 state.design=null; state.df={album:"all",q:"",shown:60};
+state.cutout=null; state.cf={album:"all",q:"",shown:60};
+state.stitch=false;
 const $ = s => document.querySelector(s);
 const baseImg = new Image(), logoImg = new Image();
+logoImg.crossOrigin="anonymous";
 let logoReady=false, baseReady=false;
 
 const TEXT_LOGOS = new Set(["wordmark-white","lockup-minimal","lockup-industrial","lockup-emblem","lockup-iconic-industrial","lockup-metallic","lockup-glitch","lockup-bassquake"]);
@@ -241,6 +252,7 @@ function enforceTextRule(){
 }
 function logoURL(id){ return isVar(id) ? "assets/variations/" + id + ".webp" : "assets/logos-web/" + id + ".webp"; }
 function logoName(id){
+  if(state.cutout) return state.cutout[1]+" · Album 4 cutout";
   if(isVar(id)) return "Album Logo #" + parseInt(id.slice(4),10);
   const l = LOGOS.find(x=>x.id===id); return l ? l.name : id;
 }
@@ -254,7 +266,7 @@ function buildPickers(){
     if(l.id===state.logo) b.className="sel";
     b.title=l.name;
     b.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'">';
-    b.onclick=()=>{state.logo=l.id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    b.onclick=()=>{state.logo=l.id; state.design=null; state.cutout=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     lp.appendChild(b);
   });
   const vp = $("#varPicker"); vp.innerHTML="";
@@ -263,7 +275,7 @@ function buildPickers(){
     if(id===state.logo) b.className="sel";
     b.title=logoName(id);
     b.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'">';
-    b.onclick=()=>{state.logo=id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    b.onclick=()=>{state.logo=id; state.design=null; state.cutout=null; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     vp.appendChild(b);
   });
   const gr=$("#garmentRow"); gr.innerHTML="";
@@ -296,6 +308,29 @@ function buildPickers(){
 function loadLogo(){ logoReady=false; logoImg.onload=()=>{logoReady=true; draw();}; logoImg.src=logoURL(state.logo); }
 function loadBase(){ baseReady=false; baseImg.onload=()=>{ const cv=$("#cv"); cv.width=baseImg.naturalWidth; cv.height=baseImg.naturalHeight; baseReady=true; draw();}; baseImg.src=baseURL(); }
 
+let artCache={key:null,cv:null};
+function stitchifyCtx(c,W,H){
+  const img=c.getImageData(0,0,W,H), d=img.data;
+  for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=(y*W+x)*4; if(d[i+3]<12) continue;
+    const ph=(x+y)%5; const rib=1-0.17*Math.sin(ph/5*2*Math.PI-Math.PI/2);
+    const hv=((x*73856093)^(y*19349663))&255; const gr=1+(hv-128)/2560;
+    for(let k=0;k<3;k++){ let v=Math.round(d[i+k]/24)*24; d[i+k]=Math.max(0,Math.min(255, v*rib*gr)); }
+  }}
+  c.putImageData(img,0,0);
+}
+function artSource(){
+  const key=(state.cutout? "c"+state.cutout[0] : "l"+state.logo)+"|"+state.mode+"|"+(state.mode==="thread"? state.thread.hex:"")+"|"+(state.stitch?"st":"rw");
+  if(artCache.key===key) return artCache.cv || (state.mode==="thread" ? tintedLogo() : logoImg);
+  const base = state.mode==="thread" ? tintedLogo() : logoImg;
+  if(!state.stitch){ artCache={key:key, cv:null}; return base; }
+  const iw=base.width||base.naturalWidth, ih=base.height||base.naturalHeight;
+  const sc=Math.min(1, 720/ih);
+  const cvv=document.createElement("canvas"); cvv.width=Math.max(1,Math.round(iw*sc)); cvv.height=Math.max(1,Math.round(ih*sc));
+  const cc=cvv.getContext("2d"); cc.drawImage(base,0,0,cvv.width,cvv.height);
+  stitchifyCtx(cc, cvv.width, cvv.height);
+  artCache={key:key, cv:cvv};
+  return cvv;
+}
 function tintedLogo(){
   const c=document.createElement("canvas"); c.width=logoImg.naturalWidth; c.height=logoImg.naturalHeight;
   const x=c.getContext("2d");
@@ -323,18 +358,23 @@ function draw(){
     const g=GARMENTS[state.garment];
     const es = effSize();
     const wpx = es.w, hpx = es.h;
-    const src = state.mode==="thread" ? tintedLogo() : logoImg;
+    const src = artSource();
     const sw = src.width||logoImg.naturalWidth, sh = src.height||logoImg.naturalHeight;
     const cx = (p.x + state.dx/100) * cv.width; let cy = (p.y + state.dy/100) * cv.height;
     const topLimit = (p.topY||0) * cv.height;
     if(cy - hpx/2 < topLimit) cy = topLimit + hpx/2;
-    ctx.save();
-    ctx.globalAlpha=0.22; ctx.translate(1.5,2);
-    if(state.mode==="thread"){ const sh2=document.createElement("canvas"); sh2.width=sw; sh2.height=sh; const sx=sh2.getContext("2d"); sx.drawImage(logoImg,0,0); sx.globalCompositeOperation="source-in"; sx.fillStyle="#000"; sx.fillRect(0,0,sw,sh); ctx.drawImage(sh2, cx-wpx/2, cy-hpx/2, wpx, hpx); }
-    ctx.restore();
-    ctx.drawImage(src, cx-wpx/2, cy-hpx/2, wpx, hpx);
+    if(state.stitch){
+      ctx.save(); ctx.shadowColor="rgba(0,0,0,0.45)"; ctx.shadowBlur=Math.max(3, wpx*0.02); ctx.shadowOffsetY=Math.max(2, hpx*0.012);
+      ctx.drawImage(src, cx-wpx/2, cy-hpx/2, wpx, hpx); ctx.restore();
+    } else {
+      ctx.save();
+      ctx.globalAlpha=0.22; ctx.translate(1.5,2);
+      if(state.mode==="thread"){ const sh2=document.createElement("canvas"); sh2.width=sw; sh2.height=sh; const sx=sh2.getContext("2d"); sx.drawImage(logoImg,0,0); sx.globalCompositeOperation="source-in"; sx.fillStyle="#000"; sx.fillRect(0,0,sw,sh); ctx.drawImage(sh2, cx-wpx/2, cy-hpx/2, wpx, hpx); }
+      ctx.restore();
+      ctx.drawImage(src, cx-wpx/2, cy-hpx/2, wpx, hpx);
+    }
     const inches = es.wFrac/g.span*g.spanIn;
-    $("#metaLine").innerHTML = "<b>"+logoName(state.logo)+"</b> on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · "+(state.mode==="thread" ? "thread: <b>"+state.thread.name+"</b>" : "<b>with colour</b> (as artwork)");
+    $("#metaLine").innerHTML = "<b>"+logoName(state.logo)+"</b> on your <b>"+g.label.toLowerCase()+"</b> ("+state.view+") · <b>"+state.placement+"</b> · approx <b>"+inches.toFixed(1)+" in</b> wide · "+(state.mode==="thread" ? "thread: <b>"+state.thread.name+"</b>" : "<b>with colour</b> (as artwork)") + (state.stitch ? " · <b>🧵 stitch view</b>" : "");
   }
   $("#sizeVal").textContent = state.size+"%";
 }
@@ -361,11 +401,12 @@ function renderList(){
 }
 $("#modeThread").onclick=()=>{state.mode="thread"; buildPickers(); draw();};
 $("#modeArt").onclick=()=>{state.mode="art"; buildPickers(); draw();};
+$("#stitchToggle").onclick=()=>{ state.stitch=!state.stitch; $("#stitchToggle").textContent="🧵 Stitch view: "+(state.stitch?"On":"Off"); $("#stitchToggle").className="chip"+(state.stitch?" sel":""); draw(); };
 $("#sizeSlider").oninput=e=>{state.size=+e.target.value; draw();};
 $("#xSlider").oninput=e=>{state.dx=+e.target.value; draw();};
 $("#ySlider").oninput=e=>{state.dy=+e.target.value; draw();};
 $("#addBtn").onclick=()=>{ state.list.push(currentSummary()); renderList(); document.querySelector("#list-section").scrollIntoView({behavior:"smooth"}); };
-$("#dlBtn").onclick=()=>{ if(state.design){ window.open(designURL(state.design,"print"), "_blank"); return; } const a=document.createElement("a"); a.download="hersky-embroidery-preview-"+state.logo+"-"+state.garment+"-"+state.view+".png"; a.href=$("#cv").toDataURL("image/png"); a.click(); };
+$("#dlBtn").onclick=()=>{ if(state.design){ window.open(designURL(state.design,"print"), "_blank"); return; } const a=document.createElement("a"); a.download="hersky-embroidery-preview-"+(state.cutout? state.cutout[0] : state.logo)+"-"+state.garment+"-"+state.view+".png"; a.href=$("#cv").toDataURL("image/png"); a.click(); };
 $("#copyBtn").onclick=()=>{ const t=$("#quoteText"); t.select(); navigator.clipboard && navigator.clipboard.writeText(t.value); };
 
 const gg=$("#galleryGrid");
@@ -379,7 +420,7 @@ VARIATIONS.forEach(id=>{
   const num = id.slice(4);
   const d=document.createElement("div"); d.className="g-card";
   d.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'"><h4>'+logoName(id)+'</h4><div class="dl"><button type="button">Preview</button><a href="assets/variations-orig/story-'+num+'.jpg" download>Original</a></div>';
-  d.querySelector("button").onclick=()=>{ state.logo=id; state.design=null; showStage(); if(!enforceTextRule()){ buildPickers(); } loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
+  d.querySelector("button").onclick=()=>{ state.logo=id; state.design=null; state.cutout=null; showStage(); if(!enforceTextRule()){ buildPickers(); } loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
   ag.appendChild(d);
 });
 
@@ -420,7 +461,7 @@ function renderDesignGrid(){
   $("#designMore").style.display = list.length>state.df.shown ? "inline-flex" : "none";
 }
 function selectDesign(e){
-  state.design=e;
+  state.design=e; state.cutout=null;
   if(SHIRTS.has(state.garment)){
     state.view="back";
     const bp=GARMENTS[state.garment].views.back.placements;
@@ -468,6 +509,61 @@ $("#designOverlay").addEventListener("load", overlaySet);
 window.addEventListener("resize", overlaySet);
 $("#designSearch").addEventListener("input", e=>{ state.df.q=e.target.value; state.df.shown=60; renderDesignGrid(); });
 $("#designMore").onclick=()=>{ state.df.shown+=60; renderDesignGrid(); };
+
+let CUTOUTS=[];
+function cutoutInit(data){ CUTOUTS=data; buildCutoutFilters(); renderCutoutGrid(); }
+function cutoutURL(id){ return (window.CUTOUT_BASE || "assets/cutouts/") + id + ".webp"; }
+function cutoutFiltered(){
+  const f=state.cf; const q=f.q.trim().toLowerCase();
+  return CUTOUTS.filter(e=>{
+    if(f.album==="creatures"){ if(e[3].indexOf("creatures")<0) return false; }
+    else if(f.album!=="all"){ if(e[2]!==+f.album) return false; }
+    if(q && (e[1].toLowerCase().indexOf(q)<0 && e[0].toLowerCase().indexOf(q)<0)) return false;
+    return true;
+  });
+}
+function buildCutoutFilters(){
+  const row=$("#cutoutFilters"); row.innerHTML="";
+  [["all","All"],["1","Album 1"],["2","Album 2"],["3","Album 3"],["creatures","Creatures"]].forEach(function(pair){
+    const v=pair[0], label=pair[1];
+    const b=document.createElement("button"); b.className="chip"+(state.cf.album===v?" sel":""); b.textContent=label;
+    b.onclick=()=>{state.cf.album=v; state.cf.shown=60; buildCutoutFilters(); renderCutoutGrid();};
+    row.appendChild(b);
+  });
+}
+function renderCutoutGrid(){
+  const grid=$("#cutoutGrid"); if(!grid) return;
+  const list=cutoutFiltered();
+  $("#cutoutCount").textContent = list.length.toLocaleString()+" cutouts"+(state.cf.q? " matching \""+state.cf.q+"\"" : "");
+  grid.innerHTML="";
+  list.slice(0, state.cf.shown).forEach(e=>{
+    const b=document.createElement("button");
+    if(state.cutout && state.cutout[0]===e[0]) b.className="sel";
+    b.title=e[1]+" · Album "+e[2];
+    b.innerHTML='<img class="checker" loading="lazy" src="'+cutoutURL(e[0])+'" alt="">';
+    b.onclick=()=>selectCutout(e);
+    grid.appendChild(b);
+  });
+  $("#cutoutMore").style.display = list.length>state.cf.shown ? "inline-flex" : "none";
+}
+function selectCutout(e){
+  state.cutout=e; state.design=null; showStage();
+  if(SHIRTS.has(state.garment)){
+    state.view="back";
+    const bp=GARMENTS[state.garment].views.back.placements;
+    state.placement = bp["Large back"] ? "Large back" : Object.keys(bp)[0];
+  }
+  $("#ruleNote").style.display="none";
+  buildPickers(); renderCutoutGrid();
+  logoReady=false;
+  logoImg.onload=()=>{ logoReady=true; draw(); };
+  logoImg.src = cutoutURL(e[0]);
+}
+$("#cutoutSearch").addEventListener("input", e=>{ state.cf.q=e.target.value; state.cf.shown=60; renderCutoutGrid(); });
+$("#cutoutMore").onclick=()=>{ state.cf.shown+=60; renderCutoutGrid(); };
+if(window.CUTOUTS_DATA){ cutoutInit(window.CUTOUTS_DATA); }
+else { fetch("cutouts.json").then(r=>r.json()).then(cutoutInit).catch(()=>{ const c=$("#cutoutCount"); if(c) c.textContent="Cutout list could not load — check your connection."; }); }
+
 if(window.DESIGNS_DATA){ designInit(window.DESIGNS_DATA); }
 else { fetch("designs.json").then(r=>r.json()).then(designInit).catch(()=>{ const c=$("#designCount"); if(c) c.textContent="Design list could not load — check your connection."; }); }
 
