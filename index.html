@@ -339,11 +339,12 @@ function tintedLogo(){
   x.fillStyle=state.thread.hex; x.fillRect(0,0,c.width,c.height);
   return c;
 }
+const SIZE_BOOST = 1.15;
 function effSize(){
   const cv=$("#cv"), p=placements()[state.placement], g=GARMENTS[state.garment];
-  let w = p.w * cv.width * (state.size/100);
+  let w = p.w * cv.width * (state.size/100) * SIZE_BOOST;
   let h = w * logoImg.naturalHeight/Math.max(1,logoImg.naturalWidth);
-  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * cv.height;
+  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * cv.height * SIZE_BOOST;
   if(h > maxH){ h = maxH; w = h * logoImg.naturalWidth/Math.max(1,logoImg.naturalHeight); }
   return {w:w, h:h, wFrac: w/cv.width};
 }
@@ -486,9 +487,9 @@ function overlaySet(){
   const W = sb.clientWidth, H = sb.clientHeight;
   if(!W||!H||!ov.naturalWidth) return;
   const p=placements()[state.placement], g=GARMENTS[state.garment];
-  let w = p.w * W * (state.size/100);
+  let w = p.w * W * (state.size/100) * SIZE_BOOST;
   let h = w * ov.naturalHeight/ov.naturalWidth;
-  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * H;
+  const maxH = ((p.maxH!==undefined? p.maxH : g.maxH)||0.62) * H * SIZE_BOOST;
   if(h>maxH){ h=maxH; w=h*ov.naturalWidth/ov.naturalHeight; }
   let cx=(p.x+state.dx/100)*W, cy=(p.y+state.dy/100)*H;
   const topLimit=(p.topY||0)*H;
