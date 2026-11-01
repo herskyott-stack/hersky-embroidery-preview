@@ -133,7 +133,7 @@
         <p class="meta">Album 4 is your store designs with the background stripped out — only the artwork itself stitches. No black square, no panel. Full-scene designs (where the background IS the picture) are not in here; they stay in the panel browser above.</p>
         <h3>1e · Front Marks — embroidered medallions that pair with a back</h3>
         <div class="picker" id="frontmarkPicker"></div>
-        <p class="meta">No text, ever — each medallion is the signature detail of its back design, flattened to a few thread colours with a stitched ring border. Picking one jumps the preview to the <strong>right shoulder</strong>.</p>
+        <p class="meta">No text, ever — each medallion is the signature detail of its back design, flattened to a few thread colours with a stitched ring border. Picking one jumps the preview to <strong>over the heart</strong> (wearer’s left chest).</p>
         <h3>2 · Your item</h3>
         <div class="row" id="garmentRow"></div>
         <div class="row" id="viewRow" style="margin-top:8px"></div>
@@ -221,9 +221,9 @@ const FRONTMARKS = [
 ];
 function isFrontmark(id){ return typeof id === "string" && id.indexOf("fm-") === 0; }
 const GARMENTS = {
-  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
-  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.33,w:.26,maxH:.50,topY:.17}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
-  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Right shoulder":{x:.395,y:.20,w:.098,maxH:.26,topY:.13},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "tee":        {label:"T-Shirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Over the heart":{x:.60,y:.31,w:.105,maxH:.28,topY:.15},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "hoodie":     {label:"Hoodie", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Over the heart":{x:.60,y:.31,w:.105,maxH:.28,topY:.15},"Centre chest":{x:.50,y:.33,w:.26,maxH:.50,topY:.17}}}, back:{placements:{"Large back":{x:.50,y:.32,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
+  "sweatshirt": {label:"Crewneck Sweatshirt", maxH:0.62, span:0.66, spanIn:20, views:{front:{placements:{"Left chest":{x:.605,y:.27,w:.13,maxH:.34,topY:.16},"Over the heart":{x:.60,y:.31,w:.105,maxH:.28,topY:.15},"Centre chest":{x:.50,y:.32,w:.26,maxH:.50,topY:.17},"Full front":{x:.50,y:.38,w:.36,maxH:.58,topY:.16}}}, back:{placements:{"Large back":{x:.50,y:.30,w:.38,maxH:.55,topY:.12},"Upper back":{x:.50,y:.17,w:.18,maxH:.30,topY:.10}}}}},
   "dad-hat":    {label:"Dad Hat", maxH:0.30, span:0.46, spanIn:8, views:{front:{placements:{"Front panel":{x:.50,y:.46,w:.20,maxH:.30,topY:.26}}}, back:{placements:{"Back arch":{x:.50,y:.45,w:.16,maxH:.24,topY:.30}}}}},
   "bucket-hat": {label:"Bucket Hat", maxH:0.32, span:0.50, spanIn:9, views:{front:{placements:{"Front":{x:.50,y:.42,w:.24,maxH:.26,topY:.25}}}, back:{placements:{"Back":{x:.50,y:.42,w:.24,maxH:.26,topY:.25}}}}},
   "tote":       {label:"Tote Bag", maxH:0.55, span:0.50, spanIn:15, views:{front:{placements:{"Centre":{x:.50,y:.60,w:.34,maxH:.50,topY:.35}}}, back:{placements:{"Centre":{x:.50,y:.60,w:.34,maxH:.50,topY:.35}}}}}
@@ -296,7 +296,7 @@ function buildPickers(){
     if(f.id===state.logo) b.className="sel";
     b.title=f.name+" — pairs with "+f.pair;
     b.innerHTML='<img class="checker" src="'+logoURL(f.id)+'" alt="'+f.name+'">';
-    b.onclick=()=>{ state.logo=f.id; state.design=null; state.cutout=null; if(state.view==="front" && placements()["Right shoulder"]) state.placement="Right shoulder"; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
+    b.onclick=()=>{ state.logo=f.id; state.design=null; state.cutout=null; if(state.view==="front" && placements()["Over the heart"]) state.placement="Over the heart"; showStage(); if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     fp.appendChild(b);
   }); }
   const gr=$("#garmentRow"); gr.innerHTML="";
