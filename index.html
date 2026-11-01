@@ -101,6 +101,7 @@
   <section id="tool">
     <h2>The preview tool</h2>
     <p class="sub">Pick a logo, the item, where it goes. Everything stays centred on the placement — nudge it only if you want it off-centre.</p>
+    <p class="sub" style="color:var(--gold)"><strong>House rule:</strong> no text on the front of a shirt. Any logo with text in it (the wordmark, the lockups, all 135 album logos) automatically previews on the <strong>back</strong> — fronts are for the clean face marks only.</p>
     <div class="tool">
       <div class="card">
         <h3>1 · Logo — library</h3>
@@ -125,6 +126,7 @@
       </div>
       <div>
         <canvas id="cv" width="1200" height="900"></canvas>
+        <p class="meta" id="ruleNote" style="display:none;color:var(--gold)"></p>
         <p class="meta" id="metaLine"></p>
         <div class="actions">
           <button class="btn" id="addBtn">＋ Add to my stitch list</button>
@@ -200,7 +202,23 @@ const $ = s => document.querySelector(s);
 const baseImg = new Image(), logoImg = new Image();
 let logoReady=false, baseReady=false;
 
+const TEXT_LOGOS = new Set(["wordmark-white","lockup-minimal","lockup-industrial","lockup-emblem","lockup-iconic-industrial","lockup-metallic","lockup-glitch","lockup-bassquake"]);
+const SHIRTS = new Set(["tee","hoodie","sweatshirt"]);
 function isVar(id){ return id.indexOf("var-")===0; }
+function logoHasText(id){ return isVar(id) || TEXT_LOGOS.has(id); }
+function enforceTextRule(){
+  const note = $("#ruleNote");
+  if(SHIRTS.has(state.garment) && state.view==="front" && logoHasText(state.logo)){
+    state.view = "back";
+    state.placement = Object.keys(placements())[0];
+    note.textContent = "House rule applied: \"" + logoName(state.logo) + "\" has text, so it rides on the back — front view switched to back.";
+    note.style.display = "block";
+    buildPickers(); loadBase();
+    return true;
+  }
+  note.style.display = "none";
+  return false;
+}
 function logoURL(id){ return isVar(id) ? "assets/variations/" + id + ".webp" : "assets/logos-web/" + id + ".webp"; }
 function logoName(id){
   if(isVar(id)) return "Album Logo #" + parseInt(id.slice(4),10);
@@ -216,7 +234,7 @@ function buildPickers(){
     if(l.id===state.logo) b.className="sel";
     b.title=l.name;
     b.innerHTML='<img class="checker" src="'+logoURL(l.id)+'" alt="'+l.name+'">';
-    b.onclick=()=>{state.logo=l.id; buildPickers(); loadLogo();};
+    b.onclick=()=>{state.logo=l.id; if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     lp.appendChild(b);
   });
   const vp = $("#varPicker"); vp.innerHTML="";
@@ -225,19 +243,19 @@ function buildPickers(){
     if(id===state.logo) b.className="sel";
     b.title=logoName(id);
     b.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'">';
-    b.onclick=()=>{state.logo=id; buildPickers(); loadLogo();};
+    b.onclick=()=>{state.logo=id; if(!enforceTextRule()){ buildPickers(); loadLogo(); } else { loadLogo(); } };
     vp.appendChild(b);
   });
   const gr=$("#garmentRow"); gr.innerHTML="";
   Object.keys(GARMENTS).forEach(g=>{
     const b=document.createElement("button"); b.className="chip"+(g===state.garment?" sel":""); b.textContent=GARMENTS[g].label;
-    b.onclick=()=>{state.garment=g; state.view="front"; state.placement=Object.keys(placements())[0]; buildPickers(); loadBase();};
+    b.onclick=()=>{state.garment=g; state.view="front"; state.placement=Object.keys(placements())[0]; if(!enforceTextRule()){ buildPickers(); loadBase(); } };
     gr.appendChild(b);
   });
   const vr=$("#viewRow"); vr.innerHTML="";
   ["front","back"].forEach(v=>{
     const b=document.createElement("button"); b.className="chip"+(v===state.view?" sel":""); b.textContent=v[0].toUpperCase()+v.slice(1);
-    b.onclick=()=>{state.view=v; state.placement=Object.keys(placements())[0]; buildPickers(); loadBase();};
+    b.onclick=()=>{state.view=v; state.placement=Object.keys(placements())[0]; if(!enforceTextRule()){ buildPickers(); loadBase(); } };
     vr.appendChild(b);
   });
   const pr=$("#placementRow"); pr.innerHTML="";
@@ -339,7 +357,7 @@ VARIATIONS.forEach(id=>{
   const num = id.slice(4);
   const d=document.createElement("div"); d.className="g-card";
   d.innerHTML='<img class="checker" loading="lazy" src="'+logoURL(id)+'" alt="'+logoName(id)+'"><h4>'+logoName(id)+'</h4><div class="dl"><button type="button">Preview</button><a href="assets/variations-orig/story-'+num+'.jpg" download>Original</a></div>';
-  d.querySelector("button").onclick=()=>{ state.logo=id; buildPickers(); loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
+  d.querySelector("button").onclick=()=>{ state.logo=id; if(!enforceTextRule()){ buildPickers(); } loadLogo(); document.querySelector("#tool").scrollIntoView({behavior:"smooth"}); };
   ag.appendChild(d);
 });
 buildPickers(); loadLogo(); loadBase(); renderList();
